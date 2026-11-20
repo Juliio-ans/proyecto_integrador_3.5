@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 // PRÁCTICA 3.5. Sustituye este texto por tu número de control real.
-const NUMERO_CONTROL = '24200260 . 24200';
+const NUMERO_CONTROL = '24200260 . 24200830';
 const ESCENARIO = 38;                 // Límite de la plaza en cada eje.
 const RADIO_PERSONAJE = 0.7;
 const RUTA_MODELO = './assets/Soldier_png.glb';

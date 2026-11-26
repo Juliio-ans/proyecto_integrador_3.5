@@ -3,74 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Centinela del puente | Práctica 3.5</title>
+  <title>Centinela del puente VR | Graficación 3.7</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <style>
-    :root { color-scheme: dark; --azul:#d3edff; --dorado:#f7cb8b; }
-    * { box-sizing:border-box; }
-    html, body { margin:0; width:100%; height:100%; overflow:hidden; background:#141e2d; font-family:Arial,sans-serif; }
-    #escena { position:fixed; inset:0; }
-    #escena canvas { display:block; }
-    .panel { position:fixed; z-index:5; top:22px; left:22px; width:min(360px,calc(100vw - 44px));
-      padding:21px 22px 18px; color:#f4f8fc; border:1px solid #aac0d444; border-radius:17px;
-      background:linear-gradient(130deg,#101d32ed,#182d48d9); box-shadow:0 20px 55px #081423a8; backdrop-filter:blur(9px); }
-    .etiqueta { text-transform:uppercase; letter-spacing:2px; font-size:11px; color:var(--dorado); font-weight:bold; }
-    .panel h2 { margin:8px 0 9px; letter-spacing:-.5px; font-size:26px; line-height:1.07; }
-    .panel p { font-size:13px; line-height:1.45; color:#cbdaee; margin:7px 0 12px; }
-    #estado { font-weight:bold; color:#a9e8ff; min-height:19px; }
-    .datos { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0; }
-    .dato { border:1px solid #d0eaff24; background:#ffffff12; border-radius:8px; padding:9px 11px; }
-    .dato span { display:block; color:#b6cae2; font-size:10px; text-transform:uppercase; letter-spacing:1px; }
-    .dato b { display:block; margin-top:3px; font-size:15px; }
-    .botones { display:flex; gap:9px; flex-wrap:wrap; }
-    button { font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; border:0; border-radius:8px; padding:10px 13px; color:#0d2438; background:var(--dorado); }
-    button.secundario { background:#c3dce9; }
-    button:focus-visible { outline:3px solid #ffffff; outline-offset:3px; }
-    #pie { position:fixed; z-index:5; bottom:0; left:0; right:0; padding:13px 24px 17px;
-      color:#f5f8ff; border-top:1px solid #cfe4f03b; background:linear-gradient(90deg,#0d1c31e8,#17283bdf); backdrop-filter:blur(10px); }
-    #pie h1 { margin:0 0 6px; font-family:Arial,sans-serif; font-size:18px; font-weight:bold; color:#f9d5a6; }
-    #pie p { margin:3px 0; font-size:12px; color:#deeaf4; line-height:1.5; }
-    #pie kbd { font-family:Arial,sans-serif; font-weight:700; border:1px solid #dbe8f969; background:#d4e6f81b; border-radius:4px; padding:2px 5px; color:white; }
-    .clave { color:#a5c7dc; }
-    @media(max-width:720px) { .panel { top:8px; left:8px; width:min(300px,calc(100vw - 16px)); padding:13px; }
-      .panel h2 { font-size:20px; } .panel p { display:none; } .datos { margin:8px 0; } .dato { padding:6px; }
-      #pie { padding:9px 12px 11px; } #pie h1 { font-size:15px; } #pie p { font-size:11px; } }
-  </style>
+  <link rel="stylesheet" href="style.css">
   <script type="importmap">
-    { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+    { "imports": { "three":"./vendor/three.module.js", "three/addons/":"./vendor/addons/" } }
   </script>
 </head>
 <body>
-  <main id="escena" aria-label="Escenario 3D interactivo"></main>
-  <aside class="panel" aria-label="Estado del juego">
-    <div class="etiqueta">Three.js · Graficación · 3.5</div>
-    <h2>Centinela<br>del puente</h2>
-    <p>Explora una plaza al atardecer, esquiva los obstáculos y empuja las esferas.</p>
-    <div id="estado" role="status">Preparando personaje y escenario…</div>
-    <div class="datos">
-      <div class="dato"><span>Acción</span><b id="accion">Caminar</b></div>
-      <div class="dato"><span>Colisiones</span><b id="choques">0</b></div>
+  <main id="escena" aria-label="Escenario de exploración en primera persona y realidad virtual"></main>
+  <div id="mira" aria-hidden="true">+</div>
+
+  <section id="portada" aria-label="Portada del juego">
+    <div class="sello">GRAFICACIÓN · PRÁCTICA 3.7 · WEBXR</div>
+    <h1>Centinela del puente <span>VR</span></h1>
+    <p>Un recorrido al atardecer en primera persona. Recorre la plaza, evita los obstáculos y activa cinco balizas de energía.</p>
+    <p class="pequeno">Al iniciar, mueve el ratón para mirar; Esc lo libera. Espacio salta.</p>
+    <p class="pequeno">Escenario adaptado de las prácticas 3.4 y 3.5 · Julio Emanuel Díaz Jiménez y Jocelyn Patricia Pérez Gómez</p>
+    <button id="jugar">Comenzar recorrido</button>
+  </section>
+
+  <aside id="panel" aria-label="Estado del juego">
+    <div class="panel-titulo">🌇 Recorrido del puente VR</div>
+    <div class="estadisticas">
+      <div><small>Balizas activadas</small><strong id="puntos">0 / 5</strong></div>
+      <div><small>Choques</small><strong id="choques">0</strong></div>
     </div>
+    <p id="estado" role="status">Preparando escenario...</p>
+    <p id="estado-raton">Al comenzar, mueve el ratón para mirar sin hacer clic.</p>
     <div class="botones">
-      <button id="inicio">▶ Iniciar</button>
-      <button class="secundario" id="musica">♫ Música</button>
-      <button class="secundario" id="centrar">⌖ Cámara</button>
+      <button id="musica" aria-pressed="false">♫ Reproducir música</button>
+      <button id="mirar">⌖ Controlar mirada</button>
+      <button id="ayuda">? Instrucciones</button>
     </div>
   </aside>
+
   <footer id="pie">
-    <h1>Centinela del puente 3D · Julio Emanuel Díaz Jiménez . Jocelyn Patricia Perez Gomez</h1>
-    <p><span class="clave">Número de control:</span> <span id="numcontrol">24200260 . 24200</span> &nbsp;|&nbsp; <span class="clave">Práctica:</span> Control de escenarios 3D integrales</p>
-    <p><strong>Instrucciones:</strong>
-      <kbd>Espacio</kbd> iniciar / detener &nbsp;
-      <kbd>W A S D</kbd> desplazarse &nbsp;
-      <kbd>1</kbd> caminar &nbsp;
-      <kbd>2</kbd> correr &nbsp;
-      <kbd>3</kbd> saludar &nbsp;
-      <kbd>Q / E</kbd> girar 90° &nbsp;
-      <kbd>Ratón</kbd> girar cámara / zoom
-    </p>
+    <h1>Centinela del puente VR</h1>
+    <div><strong>Integrantes:</strong> Julio Emanuel Díaz Jiménez y Jocelyn Patricia Pérez Gómez · Escenario de exploración en primera persona</div>
+    <p><b>PC:</b> <kbd>W A S D</kbd> caminar · <kbd>Shift</kbd> correr · <kbd>Espacio</kbd> saltar · <kbd>Ratón</kbd> mirar sin clic · <kbd>F</kbd> activar baliza · <kbd>Q / E</kbd> girar 90° · <kbd>Esc</kbd> liberar ratón</p>
+    <p><b>Meta Quest:</b> mueve la cabeza para mirar · apunta con ambos controles y presiona el gatillo · joystick izquierdo para caminar · joystick derecho para girar · botón A/X para saltar · botón <b>ENTER VR</b></p>
   </footer>
-  <audio id="audio-fondo" src="./assets/misca.m4a" preload="none" loop></audio>
-  <script type="module" src="./main.js"></script>
+
+  <audio id="audio-fondo" src="assets/musica.mp3" preload="none" loop></audio>
+  <audio id="audio-chime" src="assets/chime.mp3" preload="none"></audio>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
